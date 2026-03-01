@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from seed import board
 from .models import Board, Column, Card
 from django.contrib.auth import get_user_model
 
@@ -20,17 +21,22 @@ class CardSerializer(serializers.ModelSerializer):
         user = getattr(request, "user", None)
 
         card = self.instance
-        card = self.instance
+
+        
+        if user.is_superuser:
+            return data
 
         # Create
         if card is None:
             column = data.get('column')
             board = column.board if column else None
+            assigned_to = data.get('assigned_to')
 
         # Update
         elif hasattr(card, 'column'):
             column = data.get('column', card.column)
             board = column.board if column else None
+            assigned_to = data.get('assigned_to', card.assigned_to)
 
         # List - no validation needed
         else:
@@ -48,7 +54,9 @@ class CardSerializer(serializers.ModelSerializer):
 
 
         # Only owner  can change assignment
+        print(f"data keys: {data.keys()}, assigned_to in data: {'assigned_to' in data}, value: {data.get('assigned_to')}")
         if "assigned_to" in data and data.get("assigned_to") is not None:
+            print(f"Validating assignment change: user={user}, board.owner={board.owner}, assigned_to={assigned_to}")
             if user != board.owner:
                 raise serializers.ValidationError(
                     {"assigned_to": "Only the board owner can assign a card."}
@@ -56,13 +64,13 @@ class CardSerializer(serializers.ModelSerializer):
             assigned_to = data.get("assigned_to")
 
             # Check if assigned user is a member of the board
-            if not board.members.filter(id=assigned_to.id).exists():
+            if assigned_to != board.owner and not board.members.filter(id=assigned_to.id).exists():
                 raise serializers.ValidationError(
                     {"assigned_to": "Assigned user is not a member of this board."}
-        )
+                )
             
         # Only board owner and assigned user can change the status and priority
-        if ("status" in data or "priority" in data) and user != board.owner and card.assigned_to != user:
+        if card and ("status" in data or "priority" in data) and user != board.owner and assigned_to != user:
             raise serializers.ValidationError({"status": "Only the board owner and assigned user can change status or priority."})
 
         return data
@@ -97,6 +105,39 @@ class ColumnSerializer(serializers.ModelSerializer):
         model = Column
         fields = '__all__'
 
+    def validate(self, data):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        
+        if user.is_superuser:
+            return data
+
+        column = self.instance
+
+        # Create
+        if column is None:
+            board = data.get('board')
+        # Update
+        elif hasattr(column, 'board'):
+            board = data.get('board', column.board)
+        else:
+            return data
+
+        if not board:
+            return data
+
+        if not (user == board.owner or user.is_superuser):
+            raise serializers.ValidationError(
+                {"board": "Only the board owner can add columns."}
+            )
+        
+        if column and "board" in data and data["board"] != column.board:
+            raise serializers.ValidationError(
+                {"board": "You cannot move a column to another board."}
+            )
+        
+        return data
+
     def get_fields(self):
         fields = super().get_fields()
         column = self.instance
@@ -125,6 +166,27 @@ class BoardSerializer(serializers.ModelSerializer):
         model = Board
         fields = '__all__'
 
+    def validate(self, data):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        
+        if user.is_superuser:
+            return data
+
+        # Only staff can be owner
+        if "owner" in data and not data["owner"].is_staff:
+            raise serializers.ValidationError(
+                {"owner": "Board owner must be a staff user."}
+            )
+
+        # Members cannot be the owner at the same time
+        if "members" in data and "owner" in data:
+            if data["owner"] in data["members"]:
+                raise serializers.ValidationError(
+                    {"members": "Owner cannot be in the members list."}
+                )
+
+        return data
 
     def get_fields(self):
         fields = super().get_fields()
