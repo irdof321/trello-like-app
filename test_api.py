@@ -200,7 +200,7 @@ if user1_card_id:
 
 if user1_card_id:
     r = requests.patch(f"{BASE_URL}/cards/{user1_card_id}/", headers=h(tokens['user5']), json={"status": "done"})
-    ok(f"User5 (not member) cannot update → {r.status_code}") if r.status_code in [401, 403] else fail(f"User5 should be blocked → {r.status_code}")
+    ok(f"User5 (not member) cannot update → {r.status_code}") if r.status_code in [401, 403,404] else fail(f"User5 should be blocked → {r.status_code}")
 
 # ===== 5. FILTERS =====
 section("5. FILTERS")

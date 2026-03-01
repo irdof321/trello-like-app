@@ -15,6 +15,8 @@ class CardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if not user.is_authenticated:
+            return Card.objects.none()
         if user.is_staff:
             return Card.objects.all()
         return  (Card.objects.filter(column__board__owner=user) | Card.objects.filter(column__board__members=user)).distinct()

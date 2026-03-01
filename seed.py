@@ -107,32 +107,31 @@ cards_data = [
     ("Setup Redis cache", "medium", "todo"),
 ]
 
-for i, (title, priority, status) in enumerate(cards_data):
-    col = random.choice(all_columns)
-    assigned = random.choice(normal_users + [None, None])
+for i, (title, priority, status) in enumerate(cards_data, start=1):
+    board = random.choice(boards)
+    board_columns = list(Column.objects.filter(board=board))
+
+    col = random.choice(board_columns)
+
+    # Allowed assignees = members of the board (+ optionally owner)
+    allowed_assignees = list(board.members.all())
+    if board.owner_id and board.owner not in allowed_assignees:
+        allowed_assignees.append(board.owner)
+
+    # Add some None to simulate unassigned cards
+    pool = allowed_assignees + [None, None]
+
+    assigned = random.choice(pool)
+
     Card.objects.create(
         title=title,
         content=f'Description for: {title}',
         status=status,
         priority=priority,
         column=col,
-        order=i + 1,
+        order=i,
         assigned_to=assigned,
     )
-
-# Card specifically assigned to user1 for permission tests
-test_col = all_columns[0]
-Card.objects.create(
-    title='Card assigned to user1',
-    content='This card is specifically assigned to user1 for testing',
-    status='todo',
-    priority='medium',
-    column=test_col,
-    order=99,
-    assigned_to=user1,
-)
-
-print(f"  → {Card.objects.count()} cards created")
 
 # ===== SUMMARY =====
 print("\n✅ Seed complete!")
@@ -151,3 +150,16 @@ print(f"  Columns → {Column.objects.count()}")
 print(f"  Cards   → {Card.objects.count()}")
 print(f"{'='*50}")
 print(f"  ⚠️  user1 has a card: 'Card assigned to user1' (for permission tests)")
+
+invalid = []
+for c in Card.objects.select_related("column__board", "assigned_to"):
+    if c.assigned_to_id is None:
+        continue
+    b = c.column.board
+    is_member = b.members.filter(id=c.assigned_to_id).exists()
+    is_owner = (b.owner_id == c.assigned_to_id)
+    if not (is_member or is_owner):
+        invalid.append((c.id, c.title, c.assigned_to.username, b.name))
+
+if invalid:
+    raise RuntimeError(f"Invalid assignments found: {invalid[:10]} (showing up to 10)")
