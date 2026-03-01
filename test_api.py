@@ -306,6 +306,8 @@ section("4b. CARD VALIDATIONS")
 board = boards_map.get(new_card_board_id, {})
 other_member = next((uid for uid in board.get('members', []) if uid != user1_id), None)
 info(f"User1 tries to assign card {new_card_id} to user {other_member}")
+
+
 # User1 cannot assign a card (only owner can)
 r = requests.patch(f"{BASE_URL}/cards/{new_card_id}/", headers=h(tokens['user1']), json={
     "assigned_to": other_member
