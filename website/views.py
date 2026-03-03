@@ -10,3 +10,11 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        ids = self.request.query_params.get('ids')
+        if ids:
+            id_list = [int(i) for i in ids.split(',')]
+            queryset = queryset.filter(id__in=id_list)
+        return queryset
+
