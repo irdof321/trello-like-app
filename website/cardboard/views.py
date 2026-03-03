@@ -1,11 +1,18 @@
 from django.core.exceptions import PermissionDenied
 from rest_framework import viewsets
 from website.cardboard.serializers import BoardSerializer, ColumnSerializer
-from .models import Board, Column, Card
+from .models import Board, Column, Card, Status, Priority
 from .serializers import CardSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
-
+@api_view(['GET'])
+def card_choices(request):
+    return Response({
+        'status': Status.choices,
+        'priority': Priority.choices,
+    })
 
 class CardViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]

@@ -21,7 +21,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from website.cardboard.views import CardViewSet, ColumnViewSet, BoardViewSet
+from website.cardboard.views import CardViewSet, ColumnViewSet, BoardViewSet, card_choices
 from website.views import UserViewSet
 
 router = DefaultRouter()
@@ -36,4 +36,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/cards/card_choices', card_choices  )
 ]
