@@ -20,6 +20,14 @@ User.objects.all().delete()
 # ===== USERS =====
 print("Creating users...")
 
+superuser = User.objects.create_user(
+    username='irdof',
+    password='321321',
+    is_superuser=True,
+    is_staff=True,
+    email='irdof@cardboard.com'
+)
+
 admin = User.objects.create_user(
     username='admin',
     password='admin123',

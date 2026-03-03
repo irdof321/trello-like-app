@@ -31,6 +31,7 @@ class Column(models.Model):
     order = models.IntegerField() # place in the board
 
 class Card(models.Model):
+    related_name = "cards"
     title = models.CharField(max_length=100)
     content = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.TODO)

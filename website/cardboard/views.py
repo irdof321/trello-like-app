@@ -15,11 +15,20 @@ class CardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if not user.is_authenticated:
-            return Card.objects.none()
+        
+        # 1. First we filter cards based on the user's access to the board (owner or member)
         if user.is_staff:
-            return Card.objects.all()
-        return  (Card.objects.filter(column__board__owner=user) | Card.objects.filter(column__board__members=user)).distinct()
+            queryset = Card.objects.all()
+        else:
+            queryset = (Card.objects.filter(column__board__owner=user) | 
+                        Card.objects.filter(column__board__members=user)).distinct()
+        
+        # 2. Then we apply the optional column filter from query params
+        column_id = self.request.query_params.get('column')
+        if column_id:
+            queryset = queryset.filter(column=column_id)
+        
+        return queryset.distinct()
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -50,9 +59,19 @@ class ColumnViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        
+        # 1. First we filter columns based on the user's access to the board (owner or member)
         if user.is_staff:
-            return Column.objects.all()
-        return Column.objects.filter(board__owner=user) | Column.objects.filter(board__members=user)
+            queryset = Column.objects.all()
+        else:
+            queryset = Column.objects.filter(board__owner=user) | Column.objects.filter(board__members=user)
+        
+        # 2. Then we apply the optional board filter from query params
+        board_id = self.request.query_params.get('board')
+        if board_id:
+            queryset = queryset.filter(board=board_id)
+        
+        return queryset.distinct()
 
     def perform_update(self, serializer):
         column = self.get_object()

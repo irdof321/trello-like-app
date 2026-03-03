@@ -97,7 +97,7 @@ class CardSerializer(serializers.ModelSerializer):
 
 
 class ColumnSerializer(serializers.ModelSerializer):
-    
+    cards = CardSerializer(many=True, read_only=True)
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
     updated_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
 
