@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from seed import board
 from .models import Board, Column, Card
 from django.contrib.auth import get_user_model
 

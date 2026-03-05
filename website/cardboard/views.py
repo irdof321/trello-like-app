@@ -35,7 +35,7 @@ class CardViewSet(viewsets.ModelViewSet):
         if column_id:
             queryset = queryset.filter(column=column_id)
         
-        return queryset.distinct()
+        return queryset
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
