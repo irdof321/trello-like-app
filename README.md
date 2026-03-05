@@ -133,8 +133,6 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 
-# Frontend
-cd frontend
-npm install
-npm run dev
+# Populate the DB
+python seed.py
 ```
