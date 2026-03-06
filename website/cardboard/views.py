@@ -129,5 +129,8 @@ class BoardViewSet(viewsets.ModelViewSet):
         if not user.is_staff and instance.owner != user:
             raise PermissionDenied("You cannot delete this board.")
         instance.delete()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
     
 
