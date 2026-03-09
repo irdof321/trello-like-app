@@ -3,19 +3,23 @@ services:
     build: .           # utilise le Dockerfile du dossier courant
     ports:
       - "8000:8000"    # ta_machine:conteneur
-    # env_file:
-    #   - .env
+    env_file:
+      - .env
     volumes:
       - .:/app         # bind mount — ton code local = code dans le conteneur
-    # depends_on:
-    #   - db             # attend que postgres démarre avant
+    depends_on:
+      - db             # attend que postgres démarre avant
 
-  # db:
-  #   image: postgres:16
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
+  db:
+    restart: always
+    image: postgres:16
+    container_name: postgres #you can change this
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:

@@ -14,7 +14,7 @@ A **Trello-like project management app** built as a fullstack exercise to demons
 | Frontend | Remix (React Router v7) |
 | Auth | JWT (simplejwt) — access token 5min + refresh 1 day |
 | Session | Cookie httpOnly — token never exposed to browser |
-| DB | SQLite |
+| DB | PostgreSQL  |
 
 ---
 
@@ -124,15 +124,15 @@ The API is built with Django REST Framework using `ModelViewSet` and a `DefaultR
 
 ---
 
-## Run locally
+## Run with Docker
 
 ```bash
-# Backend
-cd backend
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
+# build the image and launch the container
+docker-compose up --build
 
-# Populate the DB
-python seed.py
+# Populate the DB (firt time)
+ docker container exec -it trello-like-app-backend-1  python manage.py migrate
+ docker container exec -it trello-like-app-backend-1  python seed.py      
+ # Check the name of your container it may change
 ```
+
