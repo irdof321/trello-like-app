@@ -16,4 +16,6 @@ EXPOSE 8000
 
 USER django
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "entrypoint.sh"]
