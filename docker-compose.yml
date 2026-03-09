@@ -10,12 +10,12 @@ services:
     # depends_on:
     #   - db             # attend que postgres démarre avant
 
-  db:
-    image: postgres:16
-    env_file:
-      - .env
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  # db:
+  #   image: postgres:16
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
 
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
