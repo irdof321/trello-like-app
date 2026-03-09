@@ -126,7 +126,7 @@ The API is built with Django REST Framework using `ModelViewSet` and a `DefaultR
 
 ## Run Backend and Frontend
 
-### Clone the repository in the same folder of the backend 
+### Clone the repository in the parent folder of the backend 
 
 
 ```bash
@@ -146,4 +146,4 @@ docker-compose up --build
  docker container exec -it trello-like-app-backend-1  python seed.py      
  # Check the name of your container it may change
 ```
-
+> If you want to change the folder of the frontend change the value of the variable *build* of the section frontend in the docker-compose.yml.
