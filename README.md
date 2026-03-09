@@ -124,7 +124,18 @@ The API is built with Django REST Framework using `ModelViewSet` and a `DefaultR
 
 ---
 
-## Run with Docker
+## Run Backend and Frontend
+
+### Clone the repository in the same folder of the backend 
+
+
+```bash
+#backend-repo
+cd ..
+git clone https://github.com/irdof321/cardboard-frontend.git
+```
+
+### Launch the container
 
 ```bash
 # build the image and launch the container
