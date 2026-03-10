@@ -104,3 +104,37 @@ class ColumnsTest(APITestCase):
         self.assertIn( "C11",board_name_list)
         self.assertIn( "C12",board_name_list)
         
+    def test_create_lists(self):
+        self.user = self.owners[0]
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post("/api/columns/",
+                {
+                    "name": "C14",
+                    "owner": self.user.id,
+                    "members":[self.users[0].pk],
+                    "board": self.boards[0].pk
+                },
+                format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post("/api/columns/",
+                {
+                    "name": "C15",
+                    "owner": self.user.id,
+                    "members":[self.users[1].pk]},
+                    "board": self.boards[0].pk
+                format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
+        response = self.client.post("/api/columns/",
+                {
+                    "name": "C16",
+                    "owner": self.user.id,
+                    "members":[self.users[0].pk],
+                    "board": self.boards[1].pk
+                },
+                format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

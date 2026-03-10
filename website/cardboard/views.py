@@ -71,7 +71,7 @@ class ColumnViewSet(viewsets.ModelViewSet):
         if user.is_superuser:
             queryset = Column.objects.all()
         else:
-            queryset = Column.objects.filter(board__owner=user) | Column.objects.filter(board__members=user)
+            queryset = (Column.objects.filter(board__owner=user) | Column.objects.filter(board__members=user)).distinct()
         
         # 2. Then we apply the optional board filter from query params
         board_id = self.request.query_params.get('board')
