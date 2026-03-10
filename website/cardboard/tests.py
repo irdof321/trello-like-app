@@ -97,7 +97,6 @@ class ColumnsTest(APITestCase):
         self.user = self.owners[0]
         self.client.force_authenticate(user=self.user)
         response = self.client.get("/api/columns/")
-        print(response.data)
         board_name_list = [b["name"] for b in response.data]
         self.assertEqual(len(board_name_list),3)
         self.assertIn( "C10",board_name_list)
@@ -111,8 +110,8 @@ class ColumnsTest(APITestCase):
                 {
                     "name": "C14",
                     "owner": self.user.id,
-                    "members":[self.users[0].pk],
-                    "board": self.boards[0].pk
+                    "board": self.boards[0].pk,
+                    "order":4
                 },
                 format='json'
             )
@@ -122,18 +121,8 @@ class ColumnsTest(APITestCase):
                 {
                     "name": "C15",
                     "owner": self.user.id,
-                    "members":[self.users[1].pk]},
-                    "board": self.boards[0].pk
-                format='json'
-            )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
-        response = self.client.post("/api/columns/",
-                {
-                    "name": "C16",
-                    "owner": self.user.id,
-                    "members":[self.users[0].pk],
-                    "board": self.boards[1].pk
+                    "board": self.boards[1].pk,
+                    "order":5
                 },
                 format='json'
             )

@@ -124,16 +124,13 @@ class ColumnSerializer(serializers.ModelSerializer):
 
         if not board:
             return data
-
-        if not (user == board.owner or user.is_superuser):
-            raise serializers.ValidationError(
-                {"board": "Only the board owner can add columns."}
-            )
         
         if column and "board" in data and data["board"] != column.board:
             raise serializers.ValidationError(
                 {"board": "You cannot move a column to another board."}
             )
+        
+        
         
         return data
 

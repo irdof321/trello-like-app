@@ -90,6 +90,14 @@ class ColumnViewSet(viewsets.ModelViewSet):
         
         serializer.save()
 
+    def perform_create(self, serializer):
+        board = Board.objects.get(pk=self.request.data["board"])
+        if board.owner != self.request.user:
+            raise PermissionDenied("You are not the owner of this Board.")
+        
+        serializer.save()
+        
+
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [IsAdminUser()]
