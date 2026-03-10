@@ -103,7 +103,7 @@ class ColumnsTest(APITestCase):
         self.assertIn( "C11",board_name_list)
         self.assertIn( "C12",board_name_list)
         
-    def test_create_lists(self):
+    def test_owner_can_create_column(self):
         self.user = self.owners[0]
         self.client.force_authenticate(user=self.user)
         response = self.client.post("/api/columns/",
@@ -117,6 +117,9 @@ class ColumnsTest(APITestCase):
             )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_non_owner_cannot_create_list(self):
+        self.user = self.owners[0]
+        self.client.force_authenticate(user=self.user)
         response = self.client.post("/api/columns/",
                 {
                     "name": "C15",
