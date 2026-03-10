@@ -53,24 +53,12 @@ class CardSerializer(serializers.ModelSerializer):
 
 
         # Only owner  can change assignment
-        print(f"data keys: {data.keys()}, assigned_to in data: {'assigned_to' in data}, value: {data.get('assigned_to')}")
         if "assigned_to" in data and data.get("assigned_to") is not None:
             print(f"Validating assignment change: user={user}, board.owner={board.owner}, assigned_to={assigned_to}")
             if user != board.owner:
                 raise serializers.ValidationError(
                     {"assigned_to": "Only the board owner can assign a card."}
                 )
-            assigned_to = data.get("assigned_to")
-
-            # Check if assigned user is a member of the board
-            if assigned_to != board.owner and not board.members.filter(id=assigned_to.id).exists():
-                raise serializers.ValidationError(
-                    {"assigned_to": "Assigned user is not a member of this board."}
-                )
-            
-        # Only board owner and assigned user can change the status and priority
-        if card and ("status" in data or "priority" in data) and user != board.owner and assigned_to != user:
-            raise serializers.ValidationError({"status": "Only the board owner and assigned user can change status or priority."})
 
         return data
 

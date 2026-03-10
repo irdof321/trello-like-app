@@ -130,3 +130,84 @@ class ColumnsTest(APITestCase):
                 format='json'
             )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class CardsTest(APITestCase):
+
+    def setUp(self):
+        self.owners = [User.objects.create_user(
+            username="owner1", password="owner", is_staff= True
+        ),User.objects.create_user(
+            username="owner2", password="owner", is_staff= True
+        )]
+
+        self.users = []
+        for i in range(4):
+            self.users.append(User.objects.create_user(
+                username=f"user{i}", password="user", is_staff= False
+            ))
+
+
+        # fill the DB
+        self.boards = []
+        self.boards.append(Board.objects.create(
+            name= "b1",
+            owner= self.owners[0],
+        ))
+        self.boards.append(Board.objects.create(
+            name= "b2",
+            owner= self.owners[1],
+        ))
+        self.boards[0].members.add(self.users[0].pk)
+        self.boards[0].members.add(self.users[1].pk)
+        self.boards[1].members.add(self.users[2].pk)
+        self.boards[1].members.add(self.users[3].pk)
+
+        for i in range(3):
+            Column.objects.create(
+                name=f"C1{i}",
+                board=self.boards[0],
+                order=i
+            )
+            Column.objects.create(
+                name=f"C2{i}",
+                board=self.boards[1],
+                order=i
+            )
+        i = 0
+        self.cards =[]
+        for b in self.boards:
+            for c in Column.objects.filter(board=b):
+                i += 1
+                self.cards.append(Card.objects.create(
+                    title=f"{b.name}{c.name}",
+                    content=f"I am the card of the column {c.name} in the board {b.name}",
+                    column=c,
+                    order=1,
+                    assigned_to=b.members.all()[i%2]
+                ))
+
+    def test_cards_in_db(self):
+        self.assertEqual(len(Card.objects.all()),6)
+
+    def test_change_priority_assigned_user(self):        
+        self.user = self.users[1]
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(f"/api/cards/{self.cards[0].pk}/",
+                {
+                    "priority":"low"
+                },
+                format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_change_priority_not_assigned_user(self):        
+        self.user = self.users[0]
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(f"/api/cards/{self.cards[0].pk}/",
+                {
+                    "priority":"low"
+                },
+                format='json'
+            )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
