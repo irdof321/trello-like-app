@@ -68,7 +68,7 @@ class ColumnViewSet(viewsets.ModelViewSet):
         user = self.request.user
         
         # 1. First we filter columns based on the user's access to the board (owner or member)
-        if user.is_staff:
+        if user.is_superuser:
             queryset = Column.objects.all()
         else:
             queryset = Column.objects.filter(board__owner=user) | Column.objects.filter(board__members=user)
