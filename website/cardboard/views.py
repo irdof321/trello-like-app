@@ -117,7 +117,8 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:
+        print(f"User: {self.request.user}, is_superuser: {self.request.user.is_superuser}")
+        if user.is_superuser:
             return Board.objects.all()
         return Board.objects.filter(owner=user) | Board.objects.filter(members=user)
     

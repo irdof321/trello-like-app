@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-!z7c33phy2poaopd3znv(c8ldesc8u1nnljt_q!!a!^_)tn+kg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["backend", "localhost"]
+ALLOWED_HOSTS = ["backend", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'website.cardboard',
-    'rest_framework_simplejwt',
+    'mozilla_django_oidc', 
 ]
 
 MIDDLEWARE = [
@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': os.environ.get("POSTGRES_DB"),
         'USER': os.environ.get("POSTGRES_USER"),
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
         'HOST': os.environ.get('POSTGRES_HOST'),
@@ -109,11 +109,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
+        'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+]
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'website.auth.MyOIDCAB',
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -131,3 +135,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+#URL of the OIDC OP jwks endpoint
+OIDC_OP_JWKS_ENDPOINT = "http://keycloak:8080/realms/cardboard/protocol/openid-connect/certs"
+
+OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID")
+OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET")
+
+OIDC_OP_AUTHORIZATION_ENDPOINT = f"{os.environ.get('OIDC_OP_ENDPOINT')}/auth"
+OIDC_OP_TOKEN_ENDPOINT = f"{os.environ.get('OIDC_OP_ENDPOINT')}/token"
+OIDC_OP_USER_ENDPOINT = f"{os.environ.get('OIDC_OP_ENDPOINT')}/userinfo"
+
+OIDC_RP_SIGN_ALGO = "RS256"
+
+OIDC_OP_ISSUER = "http://localhost:8080/realms/cardboard"

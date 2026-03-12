@@ -1,5 +1,7 @@
 services:
   backend:
+    environment:
+      PYTHONUNBUFFERED: 1
     build: .           # utilise le Dockerfile du dossier courant
     ports:
       - "8000:8000"    # ta_machine:conteneur
@@ -25,6 +27,20 @@ services:
     build: ../cardboard-frontend/mon-frontend
     ports:
       - "3000:3000"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    restart: always
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/demo
+      KC_DB_USERNAME: demo
+      KC_DB_PASSWORD: demo
+    command: start-dev
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
