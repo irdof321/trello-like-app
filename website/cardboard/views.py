@@ -24,7 +24,7 @@ class CardViewSet(viewsets.ModelViewSet):
         user = self.request.user
         
         # 1. First we filter cards based on the user's access to the board (owner or member)
-        if user.is_staff:
+        if user.is_superuser:
             queryset = Card.objects.all()
         else:
             queryset = (Card.objects.filter(column__board__owner=user) | 
@@ -45,7 +45,7 @@ class CardViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         card = self.get_object()
         user = self.request.user
-        if not user.is_staff and card.assigned_to != user and card.column.board.owner != user:
+        if not (user.is_superuser or user.is_staff or card.assigned_to != user or card.column.board.owner != user):
             raise PermissionDenied("You are not assigned to this card.")
         serializer.save()
 
