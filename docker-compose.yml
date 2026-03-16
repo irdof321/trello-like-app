@@ -11,6 +11,8 @@ services:
       - .:/app         # bind mount — ton code local = code dans le conteneur
     depends_on:
       - db             # attend que postgres démarre avant
+      - redis
+    command: python manage.py runserver 0.0.0.0:8000
 
   db:
     restart: always
@@ -41,6 +43,28 @@ services:
     command: start-dev
     ports:
       - "8080:8080"
+
+  # Celery Service
+  celery:
+      build: .
+      command: celery -A website worker -l INFO
+      volumes:
+          - .:/app
+      environment:
+        PYTHONUNBUFFERED: 1
+        DEBUG: 1
+        DJANGO_ALLOWED_HOSTS: "localhost backend 127.0.0.1 [::1]"
+        CELERY_BROKER: "redis://redis:6379/0"
+        CELERY_BACKEND: "redis://redis:6379/0"
+      env_file:
+        - .env
+      depends_on:
+          - backend
+          - redis
+
+  # Redis Service
+  redis:
+      image: "redis:alpine"
 
 volumes:
   postgres_data:

@@ -1,4 +1,5 @@
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+from .tasks import print_hello
 
 class MyOIDCAB(OIDCAuthenticationBackend):
 
@@ -10,6 +11,9 @@ class MyOIDCAB(OIDCAuthenticationBackend):
         user.is_superuser = "django-superuser" in roles
         print(f"{claims["preferred_username"]} is a superuser : {user.is_superuser}")
         user.save()
+
+        print_hello.delay()
+
         return user
     
     def update_user(self, user, claims): 
@@ -23,4 +27,7 @@ class MyOIDCAB(OIDCAuthenticationBackend):
         user.is_superuser = "django-superuser" in roles
         print(f"{claims["preferred_username"]} is a superuser : {user.is_superuser}")
         user.save()
+
+        print_hello.delay()
+        
         return user

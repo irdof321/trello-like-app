@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'website.cardboard',
     'mozilla_django_oidc', 
+    'celery',
+    'website'
 ]
 
 MIDDLEWARE = [
@@ -149,3 +151,15 @@ OIDC_OP_USER_ENDPOINT = f"{os.environ.get('OIDC_OP_ENDPOINT')}/userinfo"
 OIDC_RP_SIGN_ALGO = "RS256"
 
 OIDC_OP_ISSUER = "http://localhost:8080/realms/cardboard"
+
+
+# myproject/settings.py
+
+# set the celery broker url
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+# set the celery result backend
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+# set the celery timezone
+CELERY_TIMEZONE = 'UTC'
