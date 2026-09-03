@@ -45,7 +45,7 @@ class CardViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         card = self.get_object()
         user = self.request.user
-        if not (user.is_superuser or user.is_staff or card.assigned_to != user or card.column.board.owner != user):
+        if not (user.is_superuser or user.is_staff or card.assigned_to == user):
             raise PermissionDenied("You are not assigned to this card.")
         serializer.save()
 
